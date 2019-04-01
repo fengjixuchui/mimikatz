@@ -11,6 +11,7 @@ const KUHL_M_C kuhl_m_c_standard[] = {
 	{kuhl_m_standard_cls,		L"cls",			L"Clear screen (doesn\'t work with redirections, like PsExec)"},
 	{kuhl_m_standard_answer,	L"answer",		L"Answer to the Ultimate Question of Life, the Universe, and Everything"},
 	{kuhl_m_standard_coffee,	L"coffee",		L"Please, make me a coffee!"},
+	{kuhl_m_standard_owl,		L"owl",			L"Cam's owl"},
 	{kuhl_m_standard_sleep,		L"sleep",		L"Sleep an amount of milliseconds"},
 	{kuhl_m_standard_log,		L"log",			L"Log mimikatz input/output to file"},
 	{kuhl_m_standard_base64,	L"base64",		L"Switch file input/output base64"},
@@ -60,6 +61,16 @@ NTSTATUS kuhl_m_standard_coffee(int argc, wchar_t * argv[])
 	return STATUS_SUCCESS;
 }
 
+NTSTATUS kuhl_m_standard_owl(int argc, wchar_t * argv[])
+{
+	kprintf(L" '___'\n"
+			L" (O.o)\n"
+			L" /),,)\n"
+			L"  \"\"\n"
+			);
+	return STATUS_SUCCESS;
+}
+
 NTSTATUS kuhl_m_standard_sleep(int argc, wchar_t * argv[])
 {
 	DWORD dwMilliseconds = argc ? wcstoul(argv[0], NULL, 0) : 1000;
@@ -104,7 +115,7 @@ NTSTATUS kuhl_m_standard_version(int argc, wchar_t * argv[])
 	DWORD dwSystem;
 	char *pFile, *acabname;
 	BOOL isWow64
-	#ifdef _M_X64
+	#if defined(_M_X64) || defined(_M_ARM64) // TODO:ARM64
 	 = TRUE;
 	NTSTATUS status;
 	HMODULE hModule;
@@ -122,7 +133,7 @@ NTSTATUS kuhl_m_standard_version(int argc, wchar_t * argv[])
 			MIMIKATZ_NT_MAJOR_VERSION, MIMIKATZ_NT_MINOR_VERSION, MIMIKATZ_NT_BUILD_NUMBER, isWow64 ? L"64" : L"86", _MSC_FULL_VER, _MSC_BUILD
 			);
 	}
-	#ifdef _M_X64
+	#if defined(_M_X64) || defined(_M_ARM64) // TODO:ARM64
 	if((MIMIKATZ_NT_BUILD_NUMBER >= KULL_M_WIN_MIN_BUILD_10) && (hModule = GetModuleHandle(L"ntdll")))
 	{
 		if(pNtQuerySystemInformationEx = (PNTQUERYSYSTEMINFORMATIONEX) GetProcAddress(hModule, "NtQuerySystemInformationEx"))
