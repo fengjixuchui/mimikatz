@@ -22,6 +22,7 @@ const KUHL_M_C kuhl_m_c_dpapi[] = {
 #endif
 	{kuhl_m_dpapi_ssh,			L"ssh",		L"SSH Agent registry cache"},
 	{kuhl_m_dpapi_rdg,			L"rdg",		L"RDG saved passwords"},
+	{kuhl_m_dpapi_powershell,	L"ps",		L"PowerShell credentials (PSCredentials or SecureString)"},
 	{kuhl_m_dpapi_oe_cache,		L"cache", NULL},
 };
 const KUHL_M kuhl_m_dpapi = {
@@ -320,7 +321,7 @@ NTSTATUS kuhl_m_dpapi_masterkey(int argc, wchar_t * argv[])
 					{
 						kprintf(L"\n[domainkey] with RPC\n");
 
-						if(!(kull_m_string_args_byName(argc, argv, L"dc", &szDc, NULL) || kull_m_string_args_byName(argc, argv, L"system", &szDc, NULL)))
+						if(!(kull_m_string_args_byName(argc, argv, L"dc", &szDc, NULL)))
 						{
 							if(!kull_m_string_args_byName(argc, argv, L"domain", &szDomain, NULL))
 								if(kull_m_net_getCurrentDomainInfo(&pPolicyDnsDomainInfo))
