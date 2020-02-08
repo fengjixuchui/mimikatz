@@ -17,9 +17,7 @@ const KUHL_M_C kuhl_m_c_dpapi[] = {
 	{kuhl_m_dpapi_vault,		L"vault",		L"VAULT test"},
 	{kuhl_m_dpapi_wifi,			L"wifi",		L"WiFi test"},
 	{kuhl_m_dpapi_wwan,			L"wwan",		L"Wwan test"},
-#if defined(SQLITE3_OMIT)
 	{kuhl_m_dpapi_chrome,		L"chrome",		L"Chrome test"},
-#endif
 	{kuhl_m_dpapi_ssh,			L"ssh",			L"SSH Agent registry cache"},
 	{kuhl_m_dpapi_rdg,			L"rdg",			L"RDG saved passwords"},
 	{kuhl_m_dpapi_powershell,	L"ps",			L"PowerShell credentials (PSCredentials or SecureString)"},
@@ -234,13 +232,13 @@ NTSTATUS kuhl_m_dpapi_masterkey(int argc, wchar_t * argv[])
 							if((cbSystem - cbSystemOffset) == 2 * SHA_DIGEST_LENGTH)
 							{
 								kprintf(L"\n[masterkey] with DPAPI_SYSTEM (machine, then user): "); kull_m_string_wprintf_hex(pSystem + cbSystemOffset, 2 * SHA_DIGEST_LENGTH, 0); kprintf(L"\n");
-								if(kull_m_dpapi_unprotect_masterkey_with_userHash(masterkeys->MasterKey, pSystem + cbSystemOffset, SHA_DIGEST_LENGTH, convertedSid, &output, &cbOutput))
+								if(kull_m_dpapi_unprotect_masterkey_with_userHash(masterkeys->MasterKey, pSystem + cbSystemOffset, SHA_DIGEST_LENGTH, convertedSid, isProtected, &output, &cbOutput))
 
 								{
 									kprintf(L"** MACHINE **\n");
 									kuhl_m_dpapi_display_MasterkeyInfosAndFree(statusGuid ? &guid : NULL, output, cbOutput, NULL);
 								}
-								else if(kull_m_dpapi_unprotect_masterkey_with_userHash(masterkeys->MasterKey, pSystem + cbSystemOffset + SHA_DIGEST_LENGTH, SHA_DIGEST_LENGTH, convertedSid, &output, &cbOutput))
+								else if(kull_m_dpapi_unprotect_masterkey_with_userHash(masterkeys->MasterKey, pSystem + cbSystemOffset + SHA_DIGEST_LENGTH, SHA_DIGEST_LENGTH, convertedSid, isProtected, &output, &cbOutput))
 								{
 									kprintf(L"** USER **\n");
 									kuhl_m_dpapi_display_MasterkeyInfosAndFree(statusGuid ? &guid : NULL, output, cbOutput, NULL);
@@ -250,7 +248,7 @@ NTSTATUS kuhl_m_dpapi_masterkey(int argc, wchar_t * argv[])
 							else
 							{
 								kprintf(L"\n[masterkey] with DPAPI_SYSTEM: "); kull_m_string_wprintf_hex(pSystem + cbSystemOffset, cbSystem - cbSystemOffset, 0); kprintf(L"\n");
-								if(kull_m_dpapi_unprotect_masterkey_with_userHash(masterkeys->MasterKey, pSystem + cbSystemOffset, cbSystem - cbSystemOffset, convertedSid, &output, &cbOutput))
+								if(kull_m_dpapi_unprotect_masterkey_with_userHash(masterkeys->MasterKey, pSystem + cbSystemOffset, cbSystem - cbSystemOffset, convertedSid, isProtected, &output, &cbOutput))
 									kuhl_m_dpapi_display_MasterkeyInfosAndFree(statusGuid ? &guid : NULL, output, cbOutput, NULL);
 								else PRINT_ERROR(L"kull_m_dpapi_unprotect_masterkey_with_shaDerivedkey\n");
 							}
@@ -279,7 +277,7 @@ NTSTATUS kuhl_m_dpapi_masterkey(int argc, wchar_t * argv[])
 							else 
 								kprintf(L" (?)\n");
 
-							if(kull_m_dpapi_unprotect_masterkey_with_userHash(masterkeys->MasterKey, pHash, cbHash, convertedSid, &output, &cbOutput))
+							if(kull_m_dpapi_unprotect_masterkey_with_userHash(masterkeys->MasterKey, pHash, cbHash, convertedSid, isProtected, &output, &cbOutput))
 							{
 								kuhl_m_dpapi_oe_credential_add(convertedSid, masterkeys->CredHist ? &masterkeys->CredHist->guid : NULL, (cbHash == LM_NTLM_HASH_LENGTH) ? pHash : NULL, (cbHash == SHA_DIGEST_LENGTH) ? pHash : NULL, NULL, szPassword);
 								kuhl_m_dpapi_display_MasterkeyInfosAndFree(statusGuid ? &guid : NULL, output, cbOutput, NULL);
