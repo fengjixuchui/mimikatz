@@ -130,6 +130,7 @@ PCWCHAR WPRINTF_TYPES[] =
 	L"%02x ",		// WPRINTF_HEX_SPACE
 	L"0x%02x, ",	// WPRINTF_HEX_C
 	L"\\x%02x",		// WPRINTF_HEX_PYTHON
+	L"%02X",		// WPRINTF_HEX_SHORT_CAP
 };
 
 void kull_m_string_wprintf_hex(LPCVOID lpData, DWORD cbData, DWORD flags)
@@ -398,6 +399,30 @@ BOOL kull_m_string_quick_base64_to_Binary(PCWSTR base64, PBYTE *data, DWORD *szD
 			if(!status)
 				*data = (PBYTE) LocalFree(*data);
 		}
+	}
+	return status;
+}
+
+BOOL kull_m_string_quick_urlsafe_base64_to_Binary(PCWSTR badBase64, PBYTE *data, DWORD *szData)
+{
+	BOOL status = FALSE;
+	DWORD cbLen = lstrlen(badBase64), cbPad = cbLen % 4, i;
+	PWSTR fixedB64;
+
+	if(fixedB64 = (PWSTR) LocalAlloc(LPTR, (cbLen + cbPad + 1) * sizeof(wchar_t)))
+	{
+		RtlCopyMemory(fixedB64, badBase64, cbLen * sizeof(wchar_t));
+		for(i = 0; i < cbLen; i++)
+		{
+			if(fixedB64[i] == L'-')
+				fixedB64[i] = L'+';
+			else if(fixedB64[i] == L'_')
+				fixedB64[i] = L'/';
+			else if(fixedB64[i] == L'\0')
+				fixedB64[i] = L'=';
+		}
+		status = kull_m_string_quick_base64_to_Binary(fixedB64, data, szData);
+		LocalFree(fixedB64);
 	}
 	return status;
 }
