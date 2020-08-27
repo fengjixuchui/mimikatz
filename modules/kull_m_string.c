@@ -155,6 +155,17 @@ void kull_m_string_wprintf_hex(LPCVOID lpData, DWORD cbData, DWORD flags)
 		kprintf(L"\n};\n");
 }
 
+__time32_t kull_m_string_get_time32(__time32_t * _Time)
+{
+	__time32_t ret;
+	FILETIME SystemTimeAsFileTime;
+	GetSystemTimeAsFileTime(&SystemTimeAsFileTime);
+	ret = (__time32_t) (*(PLONGLONG) &SystemTimeAsFileTime - 116444736000000000) / 10000000;
+	if(_Time)
+		*_Time = ret;
+	return ret;
+}
+
 void kull_m_string_displayFileTime(IN PFILETIME pFileTime)
 {
 	SYSTEMTIME st;
@@ -403,6 +414,23 @@ BOOL kull_m_string_quick_base64_to_Binary(PCWSTR base64, PBYTE *data, DWORD *szD
 	return status;
 }
 
+BOOL kull_m_string_quick_base64_to_BinaryA(PCSTR base64, PBYTE *data, DWORD *szData)
+{
+	BOOL status = FALSE;
+	*data = NULL;
+	*szData = 0;
+	if(CryptStringToBinaryA(base64, 0, CRYPT_STRING_BASE64, NULL, szData, NULL, NULL))
+	{
+		if(*data = (PBYTE) LocalAlloc(LPTR, *szData))
+		{
+			status = CryptStringToBinaryA(base64, 0, CRYPT_STRING_BASE64, *data, szData, NULL, NULL);
+			if(!status)
+				*data = (PBYTE) LocalFree(*data);
+		}
+	}
+	return status;
+}
+
 BOOL kull_m_string_quick_urlsafe_base64_to_Binary(PCWSTR badBase64, PBYTE *data, DWORD *szData)
 {
 	BOOL status = FALSE;
@@ -423,6 +451,69 @@ BOOL kull_m_string_quick_urlsafe_base64_to_Binary(PCWSTR badBase64, PBYTE *data,
 		}
 		status = kull_m_string_quick_base64_to_Binary(fixedB64, data, szData);
 		LocalFree(fixedB64);
+	}
+	return status;
+}
+
+
+BOOL kull_m_string_quick_urlsafe_base64_to_BinaryA(PCSTR badBase64, PBYTE *data, DWORD *szData)
+{
+	BOOL status = FALSE;
+	DWORD cbLen = lstrlenA(badBase64), cbPad = cbLen % 4, i;
+	PSTR fixedB64;
+
+	if(fixedB64 = (PSTR) LocalAlloc(LPTR, (cbLen + cbPad + 1)))
+	{
+		RtlCopyMemory(fixedB64, badBase64, cbLen);
+		for(i = 0; i < cbLen; i++)
+		{
+			if(fixedB64[i] == '-')
+				fixedB64[i] = '+';
+			else if(fixedB64[i] == '_')
+				fixedB64[i] = '/';
+			else if(fixedB64[i] == '\0')
+				fixedB64[i] = '=';
+		}
+		status = kull_m_string_quick_base64_to_BinaryA(fixedB64, data, szData);
+		LocalFree(fixedB64);
+	}
+	return status;
+}
+
+BOOL kull_m_string_quick_binary_to_base64A(const BYTE *pbData, const DWORD cbData, LPSTR *base64)
+{
+	BOOL status = FALSE;
+	DWORD dwBytesWritten = 0;
+	if(CryptBinaryToStringA(pbData, cbData, CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF, NULL, &dwBytesWritten))
+	{
+		if(*base64 = (LPSTR) LocalAlloc(LPTR, dwBytesWritten))
+		{
+			status = CryptBinaryToStringA(pbData, cbData, CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF, *base64, &dwBytesWritten);
+			if(!status)
+				*base64 = (LPSTR) LocalFree(*base64);
+		}
+	}
+	return status;
+}
+
+BOOL kull_m_string_quick_binary_to_urlsafe_base64A(const BYTE *pbData, const DWORD cbData, LPSTR *badBase64)
+{
+	BOOL status = FALSE;
+	DWORD cbLen, i;
+	
+	status = kull_m_string_quick_binary_to_base64A(pbData, cbData, badBase64);
+	if(status)
+	{
+		cbLen = lstrlenA(*badBase64);
+		for(i = 0; i < cbLen; i++)
+		{
+			if((*badBase64)[i] == '+')
+				(*badBase64)[i] = '-';
+			else if((*badBase64)[i] == '/')
+				(*badBase64)[i] = '_';
+			else if((*badBase64)[i] == '=')
+				(*badBase64)[i] = '\0';
+		}
 	}
 	return status;
 }
