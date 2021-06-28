@@ -314,6 +314,15 @@
     <ClCompile Include="..\modules\rpc\kull_m_rpc_ms-nrpc_c.c">
       <Filter>common modules\rpc</Filter>
     </ClCompile>
+    <ClCompile Include="..\modules\rpc\kull_m_rpc_ms-rprn.c">
+      <Filter>common modules\rpc</Filter>
+    </ClCompile>
+    <ClCompile Include="modules\dpapi\packages\kuhl_m_dpapi_sccm.c">
+      <Filter>local modules\dpapi\packages</Filter>
+    </ClCompile>
+    <ClCompile Include="..\modules\kull_m_crypto_remote.c">
+      <Filter>common modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mimikatz.h" />
@@ -646,6 +655,15 @@
     </ClInclude>
     <ClInclude Include="..\modules\rpc\kull_m_rpc_ms-nrpc.h">
       <Filter>common modules\rpc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\modules\rpc\kull_m_rpc_ms-rprn.h">
+      <Filter>common modules\rpc</Filter>
+    </ClInclude>
+    <ClInclude Include="modules\dpapi\packages\kuhl_m_dpapi_sccm.h">
+      <Filter>local modules\dpapi\packages</Filter>
+    </ClInclude>
+    <ClInclude Include="..\modules\kull_m_crypto_remote.h">
+      <Filter>common modules</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
